@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ПЗ МПБ</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">ПБ</div>
+          <div>
+            <h1>ПЗ МПБ</h1>
+            <p>Проектный конвейер</p>
+          </div>
+        </div>
+
+        <section class="panel">
+          <div class="panel-title">Проекты</div>
+          <div id="projectList" class="project-list"></div>
+          <button id="loadDemoBtn" class="button secondary">Создать демо</button>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title">Новый проект</div>
+          <label>
+            Имя папки
+            <input id="newName" value="shop-001">
+          </label>
+          <label>
+            ФКП
+            <select id="newFkp">
+              <option value="F3.1">F3.1 — магазин</option>
+              <option value="F3.2">F3.2 — общепит</option>
+              <option value="F5.1">F5.1 — производство</option>
+              <option value="F5.2">F5.2 — склад</option>
+            </select>
+          </label>
+          <label>
+            Раздел
+            <select id="newSection">
+              <option>Наружное ВПС и проезды</option>
+              <option>Общие положения</option>
+              <option>Противопожарная защита</option>
+              <option>Безопасность людей (эвакуация)</option>
+            </select>
+          </label>
+          <label>
+            Объект
+            <input id="newObject" value="Магазин">
+          </label>
+          <button id="createProjectBtn" class="button primary">Создать</button>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <div class="eyebrow">Текущий проект</div>
+            <h2 id="currentTitle">Не выбран</h2>
+          </div>
+          <div class="stage-strip" id="stageStrip"></div>
+        </header>
+
+        <nav class="tabs" aria-label="Разделы интерфейса">
+          <button class="tab active" data-tab="passport">Паспорт</button>
+          <button class="tab" data-tab="decisions">Решения</button>
+          <button class="tab" data-tab="norms">Нормы</button>
+          <button class="tab" data-tab="matrix">Матрица</button>
+          <button class="tab" data-tab="draft">Текст</button>
+          <button class="tab" data-tab="audit">Аудит</button>
+        </nav>
+
+        <section id="passport" class="tab-page active">
+          <div class="toolbar">
+            <button class="button primary" data-save="passport">Сохранить паспорт</button>
+            <button class="button secondary" data-action="refresh">Обновить стадию</button>
+          </div>
+          <div class="split">
+            <div>
+              <h3>Подтверждено</h3>
+              <div id="confirmedFields" class="kv-grid"></div>
+              <button class="button ghost" id="addConfirmed">Добавить параметр</button>
+            </div>
+            <div>
+              <h3>JSON паспорта</h3>
+              <textarea id="passportEditor" spellcheck="false"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section id="decisions" class="tab-page">
+          <div class="toolbar">
+            <button class="button primary" data-save="decisions">Сохранить решения</button>
+          </div>
+          <textarea id="decisionsEditor" spellcheck="false"></textarea>
+        </section>
+
+        <section id="norms" class="tab-page">
+          <div class="toolbar">
+            <button class="button primary" data-save="norms">Сохранить нормы</button>
+            <button class="button ghost" id="addNorm">Добавить норму</button>
+            <button class="button secondary" data-action="build_matrix">Создать матрицу</button>
+          </div>
+          <div id="normRows" class="row-stack"></div>
+        </section>
+
+        <section id="matrix" class="tab-page">
+          <div class="toolbar">
+            <button class="button primary" data-save="matrix">Сохранить матрицу</button>
+            <button class="button secondary" data-action="assemble">Собрать текст</button>
+          </div>
+          <div id="matrixRows" class="row-stack"></div>
+        </section>
+
+        <section id="draft" class="tab-page">
+          <div class="toolbar">
+            <button class="button primary" data-save="draft">Сохранить текст</button>
+            <button class="button secondary" data-action="audit">Аудит</button>
+            <button class="button secondary" data-action="finalize">Финальный MD</button>
+            <button class="button primary" data-action="export_docx">DOCX</button>
+          </div>
+          <textarea id="draftEditor" spellcheck="false"></textarea>
+        </section>
+
+        <section id="audit" class="tab-page">
+          <div class="toolbar">
+            <button class="button secondary" data-action="audit">Запустить аудит</button>
+          </div>
+          <div id="issueList" class="issue-list"></div>
+          <pre id="auditReport"></pre>
+        </section>
+
+        <div id="toast" class="toast" role="status"></div>
+      </main>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+

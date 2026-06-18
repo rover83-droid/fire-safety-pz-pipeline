@@ -1,0 +1,17 @@
+{
+  "standard_editions": [
+    {
+      "document": "СП 8.13130",
+      "edition_year": 2020
+    },
+    {
+      "document": "СП 4.13130",
+      "edition_year": 2013
+    }
+  ],
+  "collisions": [],
+  "assumptions": [
+    "Демо-данные не являются проектным решением для реального объекта."
+  ],
+  "system_algorithms": []
+}

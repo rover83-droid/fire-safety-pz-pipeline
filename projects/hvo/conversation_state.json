@@ -1,0 +1,7 @@
+{
+  "user_stage": "passport_collected",
+  "last_question": null,
+  "expected_passport_field": null,
+  "last_agent": null,
+  "standards_dir": "standards"
+}

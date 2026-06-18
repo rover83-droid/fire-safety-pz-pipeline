@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Applicability matrix entry",
+  "type": "object",
+  "required": ["norm_id", "document_point", "status", "passport_basis", "numeric_thresholds", "collisions", "text_parameters"],
+  "properties": {
+    "norm_id": { "type": "string" },
+    "document_point": { "type": "string" },
+    "status": {
+      "enum": ["применимо", "неприменимо", "требует инженерной проверки"]
+    },
+    "passport_basis": { "type": "string" },
+    "numeric_thresholds": { "type": "string" },
+    "collisions": { "type": "string" },
+    "text_parameters": { "type": "string" },
+    "override_justification": {
+      "type": "string",
+      "description": "Непустое значение разрешает расхождение статуса с предложением триггер-движка (warning вместо error)."
+    }
+  },
+  "additionalProperties": false
+}
+

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Verified norm entry",
+  "type": "object",
+  "required": ["norm_id", "document", "edition_year", "point", "quote", "subject", "trigger_parameter", "source_file"],
+  "properties": {
+    "norm_id": { "type": "string" },
+    "document": { "type": "string" },
+    "edition_year": { "type": "integer", "minimum": 1900 },
+    "point": { "type": "string" },
+    "quote": { "type": "string", "minLength": 20 },
+    "subject": { "type": "string" },
+    "trigger_parameter": { "type": "string" },
+    "source_file": { "type": "string" },
+    "collision_with": { "type": ["string", "null"] },
+    "triggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["param", "op"],
+        "properties": {
+          "param": { "type": "string", "minLength": 1 },
+          "op": { "enum": [">=", ">", "<=", "<", "==", "!=", "in", "contains", "exists"] },
+          "value": {},
+          "unit": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
+

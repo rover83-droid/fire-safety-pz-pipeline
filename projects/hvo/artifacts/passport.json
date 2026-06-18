@@ -1,0 +1,37 @@
+{
+  "object_name": "Здание химводоочистки на территории производственной площадки «Северный луч»",
+  "description": "Производственное здание химводоочистки. Паспорт восстановлен из журнала разведки Агента 1 (decisions.local.json секции fire_brigade).",
+  "confirmed": {
+    "functional_fire_hazard_class": "F5.1",
+    "functional_fire_hazard_basis": "ст. 32 Федерального закона N 123-ФЗ",
+    "fire_resistance_degree": "III",
+    "structural_fire_hazard_class": "С0",
+    "floors": 1,
+    "floors_note": "1 этаж + антресоль на отметке +5.100 м, без подвала; встройка 2 этажа",
+    "height_m": 12.18,
+    "height_to_parapet_m": 12.18,
+    "total_area_m2": 3042,
+    "fire_compartment_area_m2": 3042,
+    "building_volume_m3": 32678.8,
+    "building_length_m": 78,
+    "building_width_m": 36,
+    "preliminary_fire_category": "В",
+    "engineering_fire_systems": ["СПС", "СОУЭ", "ВПВ", "НПВ"],
+    "internal_fire_water_supply_decision": "ВПВ предусмотрен по исходным данным"
+  },
+  "clarifying": {},
+  "missing": {
+    "production_room_categories": {
+      "criticality": "critical",
+      "note": "Категории производственных и складских помещений не подтверждены; предварительная категория здания В подлежит подтверждению расчетом по СП 12.13130."
+    },
+    "zone_classes": {
+      "criticality": "critical",
+      "note": "Классы взрывоопасных/пожароопасных зон не подтверждены."
+    },
+    "lightning_protection": {
+      "criticality": "critical",
+      "note": "Решение по молниезащите (СО 153-34.21.122-2003) не подтверждено."
+    }
+  }
+}

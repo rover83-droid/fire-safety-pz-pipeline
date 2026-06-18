@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.test-runs/
+.test-tmp/
+logs/*.log
+.venv/
+venv/
+*.egg-info/
+.DS_Store
+
+# Generated office documents are reproducible via `cli export-docx`
+# and are not tracked to keep the repository lean and diff-friendly.
+*.docx
+*.doc
+docx_check.zip
+
+# Raw normative-document text dumps are user-supplied local corpus files
+# (added via `cli corpus-add`) and are not redistributed with the repo.
+# Their metadata (hashes, status, edition) stays in standards/manifest.json.
+projects/*/standards/*.md
+projects/*/standards/*.txt

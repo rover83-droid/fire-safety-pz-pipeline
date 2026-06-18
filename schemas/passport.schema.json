@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MPB object passport",
+  "type": "object",
+  "required": ["object_name", "confirmed", "clarifying", "missing"],
+  "properties": {
+    "object_name": { "type": "string" },
+    "description": { "type": "string" },
+    "confirmed": { "type": "object" },
+    "clarifying": { "type": "object" },
+    "missing": { "type": "object" }
+  },
+  "additionalProperties": true
+}
+

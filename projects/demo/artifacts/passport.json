@@ -1,0 +1,35 @@
+{
+  "object_name": "Демонстрационный магазин",
+  "description": "Одноэтажный торговый объект для проверки конвейера.",
+  "confirmed": {
+    "functional_fire_hazard_class": "F3.1",
+    "functional_fire_hazard_basis": "ст. 32 Федерального закона N 123-ФЗ",
+    "fire_resistance_degree": "III",
+    "structural_fire_hazard_class": "С0",
+    "floors": 1,
+    "height_m": 6.8,
+    "total_area_m2": 980,
+    "sales_area_m2": 620,
+    "fire_compartment_area_m2": 980,
+    "building_volume_m3": 5400,
+    "occupancy_people": 124,
+    "technical_room_categories": [
+      {
+        "name": "Электрощитовая",
+        "category": "В4"
+      }
+    ],
+    "engineering_fire_systems": [
+      "СПС",
+      "СОУЭ",
+      "наружное противопожарное водоснабжение"
+    ],
+    "external_fire_water_supply": {
+      "hydrants": 2,
+      "diameter_mm": 125,
+      "fire_station_distance_km": 3.2
+    }
+  },
+  "clarifying": {},
+  "missing": {}
+}

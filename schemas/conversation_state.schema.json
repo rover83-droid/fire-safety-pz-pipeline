@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex-native conversation state",
+  "type": "object",
+  "required": ["user_stage", "standards_dir"],
+  "properties": {
+    "user_stage": { "type": "string" },
+    "last_question": { "type": ["string", "null"] },
+    "expected_passport_field": { "type": ["string", "null"] },
+    "last_agent": { "type": ["string", "null"] },
+    "standards_dir": { "type": "string" }
+  },
+  "additionalProperties": false
+}

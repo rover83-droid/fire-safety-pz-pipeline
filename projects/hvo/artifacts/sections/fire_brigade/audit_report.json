@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "finalization_allowed": true,
+  "verdict": "КОНВЕЙЕР ЗАВЕРШЁН",
+  "scope": "fire_brigade_only",
+  "checked_files": [
+    "artifacts/passport.json",
+    "artifacts/fire_brigade_decisions.json",
+    "artifacts/fire_brigade_norms.jsonl",
+    "artifacts/fire_brigade_matrix.jsonl",
+    "artifacts/fire_brigade_draft.md"
+  ],
+  "protected_files_not_modified": [
+    "artifacts/audit_report.json",
+    "artifacts/final.md",
+    "artifacts/final.docx",
+    "artifacts/pz_mpb_hvo.docx",
+    "artifacts/evacuation_norms.jsonl",
+    "artifacts/evacuation_decisions.json",
+    "artifacts/evacuation_matrix.jsonl",
+    "artifacts/evacuation_draft.md",
+    "artifacts/evacuation_final.md",
+    "artifacts/evacuation_audit_report.json"
+  ],
+  "summary": {
+    "norms_count": 53,
+    "matrix_rows_count": 53,
+    "draft_norm_references_count": 14,
+    "draft_unique_norm_references_count": 13,
+    "applicable_referenced_norms_count": 13,
+    "blocking_findings_count": 0
+  },
+  "level_1_findings": [],
+  "level_2_findings": [],
+  "level_1_protocol": [
+    "Все 13 уникальных norm_id, использованных в artifacts/fire_brigade_draft.md, существуют в artifacts/fire_brigade_norms.jsonl.",
+    "Все использованные в draft нормы имеют статус применимо в artifacts/fire_brigade_matrix.jsonl.",
+    "Каждая использованная нормативная ссылка разрешается в запись с документом, пунктом и годом редакции.",
+    "Нормы со статусами требует инженерной проверки и неприменимо в draft не использованы.",
+    "Числовые значения draft совпадают с passport.json и fire_brigade_decisions.json: Ф5.1, габариты 78 x 36 м, ширина 36 м, высота до парапета 12,18 м, площадь 3042 м2, строительный объем 32678,8 м3, степень огнестойкости III, класс С0, предварительная категория В, предусмотренные ВПВ и НПВ.",
+    "Неподтвержденные расчетные значения по пожарным гидрантам, патрубкам, резервуарам, фактической схеме генплана и расходу НПВ как утвержденные проектные решения в draft не включены."
+  ],
+  "level_2_protocol": [
+    "Структура подразделов 8.1-8.5 присутствует.",
+    "Таблица исходных данных присутствует в подразделе 8.1 и содержит требуемые параметры объекта.",
+    "Все 14 производственных абзацев имеют маркировку [Тип А/Б/В/Г] и нормативную ссылку {norm:...}.",
+    "Неподтвержденных утверждений по фактическим сторонам генплана, расположению пожарных гидрантов, фасадным патрубкам, резервуарам, площадкам водоисточников и детальной схеме кровли не выявлено; эти решения сформулированы как требования к разработке или как уточняемые по смежным чертежам.",
+    "Блокер прошлого аудита устранен: таблица исходных данных добавлена."
+  ],
+  "generated_at": "2026-05-11T00:00:00+03:00"
+}
