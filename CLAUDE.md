@@ -12,7 +12,7 @@ Use the repository instructions in this order:
    - `agents/intelligence.md`
    - `agents/assembly.md`
    - `agents/audit.md`
-4. For F5.1 full-volume work, use `docs/etalon-mpb-f5-1-structure.md` and `src/mpb_pz_flow/volume_structure.py`.
+4. For full-volume work, use `src/mpb_pz_flow/volume_structure.py` (`structure_for_fkp`): `docs/etalon-mpb-f5-1-structure.md` for FKP F5.1, `docs/etalon-generic-pp87-structure.md` (ПП87 §9 canon) for every other FKP.
 
 The preferred interface is conversational. The user is a fire-safety engineer, not a programmer. Do not make them edit JSON or run terminal commands unless they explicitly ask.
 

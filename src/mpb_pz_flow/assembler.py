@@ -7,7 +7,7 @@ from . import io
 from .models import MatrixEntry, NormEntry
 from .pipeline import audit_binding_issues
 from .standards import SECTION_REQUIREMENTS
-from .volume_structure import structure_for_fkp
+from .volume_structure import canon_label_for_fkp, structure_for_fkp
 
 # Десятичная точка перед единицей измерения → запятая (русская техдокументация).
 _DECIMAL_BEFORE_UNIT_RE = re.compile(
@@ -25,7 +25,7 @@ def assemble_draft(project_dir: Path, section: str | None = None) -> str:
 
     lines: list[str] = [f"# {paths.section}", ""]
     if structure_for_fkp(state.fkp) and _is_full_volume_request(paths.section):
-        lines.append("<!-- volume_structure: F5.1 -->")
+        lines.append(f"<!-- volume_structure: {canon_label_for_fkp(state.fkp)} -->")
         lines.append("")
     lines.extend(_tep_table(passport))
     lines.extend(_calc_table(paths))

@@ -44,7 +44,7 @@ Ask exactly one critical question at a time. Prefer the next missing passport pa
 - Do not run Agent 2 until `passport.json`, `decisions.json`, and `norms.jsonl` validate.
 - Do not run Agent 3 until matrix and draft exist.
 - Do not finalize DOCX until audit passes.
-- For F5.1 projects, require Agent 2 and Agent 3 to use `docs/etalon-mpb-f5-1-structure.md` as the canonical Tome 9 structure.
+- Require Agent 2 and Agent 3 to use the canonical Tome 9 structure for the project's FKP: `docs/etalon-mpb-f5-1-structure.md` for F5.1, `docs/etalon-generic-pp87-structure.md` (ПП87 §9 canon) for every other FKP.
 - Do not accept explanatory-note decisions without visible references to concrete normative documents and points. `{norm:<norm_id>}` is internal traceability only.
 
 ## Integrity Gate (Phase 0 — mandatory)
