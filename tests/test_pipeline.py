@@ -703,6 +703,32 @@ class Phase2EngineeringTests(unittest.TestCase):
         self.assertEqual("15", result.value)
         self.assertIn("табл. 2", result.basis)
 
+    def test_drive_distance_three_tiers_and_clause(self) -> None:
+        from mpb_pz_flow.calculators import calc_fire_drive_distance
+
+        low = calc_fire_drive_distance({"height_m": 6.56})
+        self.assertEqual("не более 25", low.value)  # ≤12 м — раньше баг давал «5–8»
+        self.assertIn("п. 8.2.6", low.basis)        # раньше был неверный «п. 8.8»
+
+        mid = calc_fire_drive_distance({"height_m": 20})
+        self.assertEqual("5–8", mid.value)
+
+        high = calc_fire_drive_distance({"height_m": 40})
+        self.assertEqual("8–10", high.value)
+
+    def test_fire_duration_clause_and_public_two_hours(self) -> None:
+        from mpb_pz_flow.calculators import calc_fire_duration
+
+        # производственное здание (Ф5) — 3 ч, корректный локатор п. 5.17 (был п. 6.3)
+        prod = calc_fire_duration({"fire_resistance_degree": "IV", "structural_fire_hazard_class": "С0"}, "F5.1")
+        self.assertEqual("3", prod.value)
+        self.assertIn("п. 5.17", prod.basis)
+        self.assertNotIn("6.3", prod.basis)
+
+        # жилое/общественное I–II степени класса С0 — 2 ч
+        public = calc_fire_duration({"fire_resistance_degree": "II", "structural_fire_hazard_class": "С0"}, "F1.3")
+        self.assertEqual("2", public.value)
+
     def test_calc_run_writes_registry_and_demo_draft_has_table(self) -> None:
         project = self.temp_project_parent() / "calc-registry"
         create_demo(project)
@@ -1209,6 +1235,83 @@ class Phase5ExportTests(unittest.TestCase):
         document = Document(str(output))
         texts = [paragraph.text for paragraph in document.paragraphs]
         self.assertNotIn("МЕРОПРИЯТИЯ ПО ОБЕСПЕЧЕНИЮ ПОЖАРНОЙ БЕЗОПАСНОСТИ", texts)
+
+
+class Phase6WorkflowCommandsTests(unittest.TestCase):
+    def temp_project_parent(self) -> Path:
+        base = Path.cwd() / ".test-runs"
+        base.mkdir(exist_ok=True)
+        path = base / uuid.uuid4().hex
+        path.mkdir()
+        return path
+
+    def test_norms_add_appends_then_updates_in_place(self) -> None:
+        from mpb_pz_flow.cli import main as cli_main
+
+        project = self.temp_project_parent() / "norms-add"
+        create_demo(project)
+        before = len(io.read_norms(project))
+
+        new = project / "new_norm.jsonl"
+        new.write_text(
+            json.dumps(
+                {
+                    "norm_id": "test-extra-1",
+                    "document": "СП 8.13130",
+                    "edition_year": 2020,
+                    "point": "п. 9.9",
+                    "quote": "Тестовая норма достаточной длины для проверки команды norms-add.",
+                    "subject": "тест",
+                    "trigger_parameter": "building_volume_m3",
+                    "source_file": "standards/demo/SP_8_13130_2020_excerpt.md",
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+
+        self.assertEqual(0, cli_main(["norms-add", "--project-dir", str(project), "--file", str(new)]))
+        self.assertEqual(before + 1, len(io.read_norms(project)))
+
+        # повторная установка того же norm_id обновляет запись, а не плодит дубликат
+        self.assertEqual(0, cli_main(["norms-add", "--project-dir", str(project), "--file", str(new)]))
+        self.assertEqual(before + 1, len(io.read_norms(project)))
+
+    def test_norms_add_rejects_missing_required_fields(self) -> None:
+        from mpb_pz_flow.cli import main as cli_main
+
+        project = self.temp_project_parent() / "norms-add-bad"
+        create_demo(project)
+        before = len(io.read_norms(project))
+
+        bad = project / "bad.jsonl"
+        bad.write_text(json.dumps({"norm_id": "x", "document": "СП 8.13130"}, ensure_ascii=False), encoding="utf-8")
+
+        self.assertEqual(1, cli_main(["norms-add", "--project-dir", str(project), "--file", str(bad)]))
+        self.assertEqual(before, len(io.read_norms(project)))  # ничего не записано
+
+    def test_consolidate_includes_finalized_section_and_placeholders(self) -> None:
+        from mpb_pz_flow.cli import main as cli_main
+        from mpb_pz_flow.consolidate import build_consolidated_markdown
+
+        project = self.temp_project_parent() / "consolidate"
+        create_demo(project)
+        finalize_markdown(project)  # даёт final.md активного раздела
+        active = io.read_state(project).section
+
+        self.assertEqual(0, cli_main(["consolidate", "--project-dir", str(project), "--no-docx"]))
+        out = project / "artifacts" / "tom9_svod.md"
+        self.assertTrue(out.exists())
+        text = out.read_text(encoding="utf-8")
+        self.assertIn("# Раздел 9", text)
+        self.assertIn(io.read_state(project).object_name, text)
+
+        md, included, placeholders = build_consolidated_markdown(project)
+        self.assertIn("Общие положения", included)
+        self.assertIn("Характеристика объекта", included)
+        self.assertIn(active, included)  # финализированный содержательный раздел вставлен
+        self.assertIn("Расчёт пожарных рисков", placeholders)
+        self.assertNotIn("## Технико-экономические показатели", md)  # дублирующая ТЭП снята
 
 
 if __name__ == "__main__":

@@ -20,3 +20,12 @@ docx_check.zip
 # Their metadata (hashes, status, edition) stays in standards/manifest.json.
 projects/*/standards/*.md
 projects/*/standards/*.txt
+
+# Local test project (contains site-specific data) — not for the public repo.
+projects/bmk/
+
+# Loose reference/etalon documents kept locally under projects/ (may contain
+# real object data) — never publish these.
+projects/*.md
+projects/*.docx.md
+projects/*.docx

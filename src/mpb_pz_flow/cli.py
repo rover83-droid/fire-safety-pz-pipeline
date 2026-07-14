@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import corpus, io
+from . import corpus, io, models
 from .assembler import assemble_draft, finalize_markdown
 from .codex_native import (
     format_status_card,
@@ -115,6 +115,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     calc_list = sub.add_parser("calc-list", help="List available engineering calculators.")
     calc_list.set_defaults(func=cmd_calc_list)
+
+    norms_add = sub.add_parser("norms-add", help="Validate and add norms from a JSONL file into a section's norms.jsonl.")
+    norms_add.add_argument("--project-dir", required=True, type=Path)
+    norms_add.add_argument("--section", default=None)
+    norms_add.add_argument("--file", required=True, type=Path, help="JSONL file with norm objects (one per line).")
+    norms_add.add_argument("--replace", action="store_true", help="Replace the whole section norm set instead of appending/updating.")
+    norms_add.set_defaults(func=cmd_norms_add)
+
+    consolidate_p = sub.add_parser("consolidate", help="Compile the consolidated Tome 9 (ПП-87) from audited section final.md.")
+    consolidate_p.add_argument("--project-dir", required=True, type=Path)
+    consolidate_p.add_argument("--output", default="tom9_svod", help="Output file stem (default: tom9_svod).")
+    consolidate_p.add_argument("--no-docx", action="store_true", help="Write only Markdown, skip DOCX.")
+    consolidate_p.set_defaults(func=cmd_consolidate)
 
     corpus_add = sub.add_parser("corpus-add", help="Ingest a normative source: normalize encoding, hash, register in manifest.")
     corpus_add.add_argument("--project-dir", required=True, type=Path)
@@ -331,6 +344,80 @@ def cmd_calc_run(args: argparse.Namespace) -> int:
 def cmd_calc_list(args: argparse.Namespace) -> int:
     for calc_id, (title, _func) in CALCULATORS.items():
         print(f"{calc_id}: {title}")
+    return 0
+
+
+_NORM_REQUIRED = ("norm_id", "document", "edition_year", "point", "quote", "subject", "trigger_parameter", "source_file")
+
+
+def cmd_norms_add(args: argparse.Namespace) -> int:
+    rows = io.read_jsonl(args.file)
+    if not rows:
+        print("Файл пуст: нормы не добавлены.", file=sys.stderr)
+        return 1
+
+    # Явная проверка обязательных полей: NormEntry.from_dict молча подставляет
+    # дефолты, поэтому валидируем здесь, а не после записи.
+    for i, row in enumerate(rows, start=1):
+        missing = [key for key in _NORM_REQUIRED if not str(row.get(key, "")).strip()]
+        if missing:
+            print(f"ERROR: запись {i}: не заполнены обязательные поля: {', '.join(missing)}", file=sys.stderr)
+            return 1
+        if len(str(row.get("quote", ""))) < 20:
+            print(f"ERROR: запись {i} ({row.get('norm_id')}): цитата короче 20 символов.", file=sys.stderr)
+            return 1
+
+    new_norms = [models.NormEntry.from_dict(row) for row in rows]
+
+    existing = [] if args.replace else io.read_norms(args.project_dir, args.section)
+    merged: list[models.NormEntry] = list(existing)
+    known = {n.norm_id: idx for idx, n in enumerate(merged)}
+    added = updated = 0
+    for norm in new_norms:
+        if norm.norm_id in known:
+            merged[known[norm.norm_id]] = norm
+            updated += 1
+        else:
+            known[norm.norm_id] = len(merged)
+            merged.append(norm)
+            added += 1
+
+    io.write_norms(args.project_dir, merged, args.section)
+    print(f"Норм добавлено: {added}; обновлено: {updated}; всего в разделе: {len(merged)}.")
+
+    # Немедленная обратная связь по верификации цитат (не блокирует запись).
+    unverified: list[tuple[str, str]] = []
+    for norm in new_norms:
+        source = corpus.resolve_source(args.project_dir, norm)
+        if source is None:
+            unverified.append((norm.norm_id, "источник не найден в корпусе"))
+            continue
+        try:
+            if not corpus.quote_matches(corpus.read_source_normalized(source), norm.quote):
+                unverified.append((norm.norm_id, "цитата не найдена в источнике"))
+        except corpus.CorpusError as exc:
+            unverified.append((norm.norm_id, str(exc)))
+    if unverified:
+        print("Предупреждение — цитаты не верифицированы (аудит их заблокирует):")
+        for norm_id, reason in unverified:
+            print(f"  - {norm_id}: {reason}")
+    else:
+        print("Все цитаты новых норм верифицированы по источнику.")
+    return 0
+
+
+def cmd_consolidate(args: argparse.Namespace) -> int:
+    from .consolidate import consolidate
+
+    result = consolidate(args.project_dir, output_stem=args.output, docx=not args.no_docx)
+    print(f"Сводный том (MD): {result['md']}")
+    if result["docx"]:
+        print(f"Сводный том (DOCX): {result['docx']}")
+    elif not args.no_docx:
+        print("DOCX пропущен: python-docx не установлен (pip install .[docx]).")
+    print(f"Включено разделов: {len(result['included'])} ({', '.join(result['included'])})")
+    if result["placeholders"]:
+        print("Плейсхолдеры (не разработаны): " + ", ".join(result["placeholders"]))
     return 0
 
 

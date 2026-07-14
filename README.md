@@ -45,7 +45,9 @@
 
 5. Когда аудит пройден, попросите: `Собери финальный DOCX` — получите готовый файл с оформлением по ГОСТ.
 
-Подробное пошаговое руководство для новичка: [docs/codex-native-workflow.md](docs/codex-native-workflow.md).
+Подробное пошаговое руководство для новичка (установка → готовый DOCX, включая
+команды `norms-add` и `consolidate`): [docs/getting-started.md](docs/getting-started.md).
+Разговорный сценарий работы: [docs/codex-native-workflow.md](docs/codex-native-workflow.md).
 
 ## Пример
 
@@ -112,6 +114,24 @@ python -m mpb_pz_flow.cli audit --project-dir .\projects\shop
 python -m mpb_pz_flow.cli gate --project-dir .\projects\shop
 python -m mpb_pz_flow.cli export-docx --project-dir .\projects\shop --front-matter
 ```
+
+### Мультиагентная сборка (fan-out по разделам + механический гейт)
+
+Две команды поддерживают оркестрацию: агент собирает по разделу на субагента,
+затем код (не агент) проверяет каждый раздел, а `consolidate` сводит том 9.
+
+```powershell
+# валидировать и установить нормы раздела из JSONL (проверяет обязательные поля
+# и сразу сообщает, какие цитаты не верифицированы — до аудита)
+python -m mpb_pz_flow.cli norms-add --project-dir .\projects\shop --section "Категорирование" --file .\norms.jsonl
+
+# собрать сводный том 9 (порядок ПП-87) из проверенных final.md разделов;
+# «Общие положения» и «Характеристика объекта» — из паспорта, обвязка — из редакций
+python -m mpb_pz_flow.cli consolidate --project-dir .\projects\shop
+```
+
+Пример оркестрирующего сценария — `workflows/tom9.workflow.js` (фазы:
+заморозка паспорта → fan-out разделов → механический гейт → сводный том).
 
 ## Браузерный GUI (устарел)
 

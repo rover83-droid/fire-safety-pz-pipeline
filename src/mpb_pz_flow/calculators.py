@@ -183,17 +183,20 @@ def calc_fire_drive_width(confirmed: dict[str, Any]) -> CalcResult:
 
 def calc_fire_drive_distance(confirmed: dict[str, Any]) -> CalcResult:
     height = _require_number(confirmed, ("height_m",), "высота здания, м")
-    if height <= 28:
-        distance, condition = "5–8", "не более 28 м"
+    # СП 4.13130.2013, п. 8.2.6 (здания класса Ф5): три тира по высоте.
+    if height <= 12:
+        distance, condition = "не более 25", "не более 12 м"
+    elif height <= 28:
+        distance, condition = "5–8", "более 12 м, но не более 28 м"
     else:
         distance, condition = "8–10", "более 28 м"
     return CalcResult(
         calc_id="sp4_8_8_drive_distance",
-        title="Расстояние от внутреннего края проезда до стены здания",
+        title="Расстояние от края проезда до стены здания",
         value=distance,
         unit="м",
         formula=f"высота здания {_fmt(height)} м ({condition}) → расстояние {distance} м",
-        basis="СП 4.13130.2013, п. 8.8",
+        basis="СП 4.13130.2013, п. 8.2.6",
         inputs={"height_m": height},
     )
 
@@ -245,15 +248,30 @@ def calc_roof_ladder_count(confirmed: dict[str, Any], fkp: str) -> CalcResult:
     )
 
 
-def calc_fire_duration(confirmed: dict[str, Any]) -> CalcResult:
+def calc_fire_duration(confirmed: dict[str, Any], fkp: str = "") -> CalcResult:
+    # СП 8.13130.2020, п. 5.17 (ред. приказа МЧС от 25.12.2023 N 1329):
+    # по умолчанию 3 ч; для жилых и общественных зданий I и II степеней
+    # огнестойкости класса С0 — 2 ч.
+    degree = str(confirmed.get("fire_resistance_degree", "")).strip().upper()
+    structural = str(confirmed.get("structural_fire_hazard_class", "")).strip()
+    public_or_resid = fkp.upper().startswith(("F1", "F2", "F3", "F4"))
+    if public_or_resid and degree in ("I", "II") and structural in ("С0", "C0"):
+        value = "2"
+        formula = (
+            "для жилых и общественных зданий I и II степеней огнестойкости "
+            "класса С0 продолжительность тушения пожара принимается 2 часа"
+        )
+    else:
+        value = "3"
+        formula = "продолжительность тушения пожара принимается 3 часа"
     return CalcResult(
         calc_id="sp8_6_3_duration",
         title="Расчетная продолжительность наружного пожаротушения",
-        value="3",
+        value=value,
         unit="ч",
-        formula="нормативная продолжительность тушения пожара принимается 3 часа",
-        basis="СП 8.13130.2020, п. 6.3",
-        inputs={},
+        formula=formula,
+        basis="СП 8.13130.2020, п. 5.17",
+        inputs={"fire_resistance_degree": degree, "fkp": fkp},
     )
 
 
@@ -297,7 +315,7 @@ CALCULATORS: dict[str, tuple[str, Callable[[dict[str, Any], str], CalcResult]]] 
         lambda confirmed, fkp: calc_fire_drive_width(confirmed),
     ),
     "sp4_8_8_drive_distance": (
-        "Расстояние проезд—стена (СП 4.13130.2013, п. 8.8)",
+        "Расстояние проезд—стена (СП 4.13130.2013, п. 8.2.6)",
         lambda confirmed, fkp: calc_fire_drive_distance(confirmed),
     ),
     "sp4_7_2_roof_access": (
@@ -309,8 +327,8 @@ CALCULATORS: dict[str, tuple[str, Callable[[dict[str, Any], str], CalcResult]]] 
         calc_roof_ladder_count,
     ),
     "sp8_6_3_duration": (
-        "Продолжительность тушения (СП 8.13130.2020, п. 6.3)",
-        lambda confirmed, fkp: calc_fire_duration(confirmed),
+        "Продолжительность тушения (СП 8.13130.2020, п. 5.17)",
+        lambda confirmed, fkp: calc_fire_duration(confirmed, fkp),
     ),
     "fz123_risk_threshold": (
         "Порог пожарного риска (ФЗ-123)",

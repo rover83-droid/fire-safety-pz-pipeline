@@ -54,6 +54,35 @@ def export_docx(
     return paths.final_docx
 
 
+def render_markdown_to_docx(
+    md_text: str,
+    output: Path,
+    object_name: str,
+    section_name: str,
+    title_page: bool = True,
+) -> Path:
+    """Отрисовать произвольный Markdown в DOCX по ГОСТ (без проверки хэш-привязки).
+
+    Используется сборкой сводного тома: содержательные разделы берутся из уже
+    прошедших аудит section/final.md, поэтому гейт хэш-привязки обеспечивается
+    выше — на уровне каждого раздела, а не при компиляции.
+    """
+    try:
+        from docx import Document
+    except ImportError as exc:
+        raise RuntimeError("python-docx is not installed. Install optional dependency: pip install .[docx]") from exc
+
+    document = Document()
+    _apply_gost_styles(document)
+    _apply_page_setup(document)
+    if title_page:
+        _add_title_page(document, object_name, section_name)
+    _render_markdown(document, md_text)
+    _add_page_number_footer(document)
+    document.save(str(output))
+    return Path(output)
+
+
 def _apply_gost_styles(document: object) -> None:
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.shared import Mm, Pt, RGBColor
