@@ -71,6 +71,12 @@ Every project decision in the explanatory note must visibly cite a concrete norm
 - Norms with structured `triggers` get their matrix status computed from the passport; overrides require `override_justification`.
 - Engineering values come from `cli calc-run` (registry `artifacts/calculations.json` with formula + basis); unit-bearing numbers without provenance block the audit (`draft.number_unverified`).
 
+## Composition Rules (SP 1/2/4 patterns)
+
+- Norms carry `composition_layer` (`general` → `fkp_specific` → `special`) and `fkp_scope`; assembly sorts applicable paragraphs accordingly.
+- Out-of-scope norms for the project FKP are not drafted as applicable; high-rise / special-object boundaries surface as passport findings.
+- Tome 9 headings remain ПП87 / Ф5.1 etalon — see `docs/composition-architecture.md`.
+
 ## Codex-Native Orchestration
 
 Use `agents/orchestrator.md` as the top-level behavior contract. The orchestrator owns stage control, one-question-at-a-time intake, and subagent dispatch.

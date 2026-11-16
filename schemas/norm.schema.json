@@ -13,6 +13,20 @@
     "trigger_parameter": { "type": "string" },
     "source_file": { "type": "string" },
     "collision_with": { "type": ["string", "null"] },
+    "composition_layer": {
+      "type": "string",
+      "enum": ["general", "fkp_specific", "special"],
+      "description": "Общее требование СП → уточнение по ФКП → спецблок (МГН, пожарные подразделения и т.п.)."
+    },
+    "fkp_scope": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Область ФКП: ['*'] для всех; 'F5' / 'F5.1' / 'F1-F4' и т.п."
+    },
+    "source_section": {
+      "type": "string",
+      "description": "Номер/идентификатор раздела источника СП (напр. '4', '6', '9') для трассировки."
+    },
     "triggers": {
       "type": "array",
       "items": {

@@ -6,11 +6,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from . import calculators, corpus, io, routing, triggers
+from . import calculators, composition, corpus, io, routing, triggers
 from .models import MatrixEntry, ProjectState, Stage, ValidationIssue
 from .standards import FKP_TABLE
 from .style import validate_lacunae, validate_paragraph_types, validate_section_content, validate_style
 from .validators import (
+    validate_composition,
     validate_decisions,
     validate_draft,
     validate_editions,
@@ -106,21 +107,26 @@ def refresh_stage(project_dir: Path) -> ProjectState:
 def build_initial_matrix(project_dir: Path, section: str | None = None) -> list[MatrixEntry]:
     paths = io.artifact_paths(project_dir, section)
     passport = io.read_json(paths.passport) if paths.passport.exists() else {}
+    state = io.read_state(project_dir)
     norms = io.read_norms(project_dir, section)
     rows: list[MatrixEntry] = []
     for norm in norms:
-        proposal = triggers.propose_status(norm, passport)
-        if proposal is not None:
-            status, basis = proposal
-            if status == "требует инженерной проверки" and "отсутств" not in basis.lower():
-                basis = f"Отсутствуют данные для вычисления применимости: {basis}"
+        if not composition.norm_in_scope(norm, state.fkp):
+            status = "неприменимо"
+            basis = composition.out_of_scope_basis(norm, state.fkp)
         else:
-            status = "требует инженерной проверки"
-            basis = (
-                f"Применимость требования {norm.document}, {norm.point} требует дополнительной "
-                f"инженерной проверки: отсутствует подтвержденное сопоставление с параметром "
-                f"'{norm.trigger_parameter}'."
-            )
+            proposal = triggers.propose_status(norm, passport)
+            if proposal is not None:
+                status, basis = proposal
+                if status == "требует инженерной проверки" and "отсутств" not in basis.lower():
+                    basis = f"Отсутствуют данные для вычисления применимости: {basis}"
+            else:
+                status = "требует инженерной проверки"
+                basis = (
+                    f"Применимость требования {norm.document}, {norm.point} требует дополнительной "
+                    f"инженерной проверки: отсутствует подтвержденное сопоставление с параметром "
+                    f"'{norm.trigger_parameter}'."
+                )
         rows.append(
             MatrixEntry(
                 norm_id=norm.norm_id,
@@ -216,6 +222,7 @@ def audit_project(project_dir: Path, section: str | None = None) -> dict[str, ob
         level_1.extend(validate_editions(project_dir, paths.section))
     level_1.extend(validate_matrix(project_dir, paths.section))
     level_1.extend(validate_triggers(project_dir, paths.section))
+    level_1.extend(validate_composition(project_dir, paths.section, level="level_1"))
 
     level_2: list[ValidationIssue] = []
     if not _errors_only(level_1):
@@ -226,6 +233,7 @@ def audit_project(project_dir: Path, section: str | None = None) -> dict[str, ob
         level_2.extend(validate_section_content(project_dir, paths.section))
         level_2.extend(validate_lacunae(project_dir, paths.section))
         level_2.extend(validate_volume_structure(project_dir, paths.section))
+        level_2.extend(validate_composition(project_dir, paths.section, level="level_2"))
 
     agent_level_1, agent_level_2 = _load_agent_findings(paths)
     level_1.extend(agent_level_1)

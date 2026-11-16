@@ -1,0 +1,34 @@
+{
+  "documents": [
+    {
+      "doc_id": "сп-2-13130-2020",
+      "document": "СП 2.13130",
+      "edition_year": 2020,
+      "title": "Обеспечение огнестойкости объектов защиты (демо-выписка)",
+      "file": "demo/SP_2_13130_2020_excerpt.md",
+      "sha256": "99f1b434ca1afe942076d55a6cc6dc89d9bc604838b7134d412db8a6551ef295",
+      "status": "добровольный",
+      "in_force": true
+    },
+    {
+      "doc_id": "сп-4-13130-2013",
+      "document": "СП 4.13130",
+      "edition_year": 2013,
+      "title": "Ограничение распространения пожара (демо-выписка)",
+      "file": "demo/SP_4_13130_2013_excerpt.md",
+      "sha256": "530dc2e2af7a6c8a720500817789b58c20f34a99f267c5a556c5139b7f6162cf",
+      "status": "добровольный",
+      "in_force": true
+    },
+    {
+      "doc_id": "сп-8-13130-2020",
+      "document": "СП 8.13130",
+      "edition_year": 2020,
+      "title": "Наружное противопожарное водоснабжение (демо-выписка)",
+      "file": "demo/SP_8_13130_2020_excerpt.md",
+      "sha256": "cd7cff494692a1abd86d1c9c7d921cc7fcb0bc0150082a2e5d7056f02d6ca640",
+      "status": "добровольный",
+      "in_force": true
+    }
+  ]
+}

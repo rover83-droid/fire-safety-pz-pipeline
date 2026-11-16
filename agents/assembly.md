@@ -61,6 +61,19 @@ A number that appears nowhere is a blocking finding `draft.number_unverified`.
 For Тип Г paragraphs, take the value, formula, and basis from the calculations
 registry instead of inventing them.
 
+## Composition Order (SP patterns — mechanically enforced)
+
+Inside a section, order applicable paragraphs by `composition_layer`:
+
+1. `general` — common SP requirements;
+2. `fkp_specific` — requirements for the project's FKP family/class;
+3. `special` — MGN, fire-brigade access, and other special blocks.
+
+Do not mark a matrix row `применимо` when `fkp_scope` excludes the project FKP
+(`matrix.scope_mismatch`). Out-of-scope norms stay in the matrix as `неприменимо`.
+Volume headings still follow ПП87 / Ф5.1 etalon — not the SP table of contents.
+See `docs/composition-architecture.md`.
+
 ## Draft Rules
 
 - Use only matrix rows with status `применимо`.

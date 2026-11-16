@@ -26,8 +26,14 @@ Return a concise structured report with these sections:
 - Ask one missing critical passport question at a time.
 - Use only local normative files for quotations.
 - Every norm entry must include `document`, `edition_year`, `point`, `quote`, `subject`, `trigger_parameter`, and `source_file`.
+- For norms from СП 1 / СП 2 / СП 4 (and similarly structured СП) also fill composition metadata:
+  - `composition_layer`: `general` (общие требования, обычно §4/§5), `fkp_specific` (разделы по классам Ф1–Ф5), `special` (МГН, пожарные подразделения, спецблоки);
+  - `fkp_scope`: `["*"]` for universal clauses, or family/class tokens (`"F5"`, `"F5.1"`, `"F1-F4"`);
+  - `source_section`: chapter/section number in the source SP (e.g. `"4"`, `"6"`, `"9"`).
+- Do not mark a general §4 clause with a narrow single-FKP scope.
 - If a norm source is absent, write an explicit gap to `decisions.json`; do not reconstruct the clause from memory.
 - Do not mark a norm as applicable or non-applicable; applicability belongs to Agent 2.
+- If passport height or special-object flags hit SP applicability boundaries, record a lacuna/STU note in `decisions.json` (do not invent compliance).
 
 ## Corpus Rules (Phase 1 — mechanically enforced)
 
@@ -53,6 +59,11 @@ must hold for the norm to apply. The engine evaluates them against the passport
 and proposes the matrix status; Agent 2 can override only with a recorded
 justification. Prefer structured triggers for thresholds (heights, areas,
 volumes, widths, occupancy) — they make applicability verifiable.
+
+For СП 2 tabular limits (degree of fire resistance × constructive fire hazard class
+× floors / compartment area), encode the applicable table row as AND-triggers on
+`fire_resistance_degree`, `structural_fire_hazard_class`, `floors`, and
+`fire_compartment_area_m2`. Seed helpers live in `sp2_matrices.py`.
 
 ## Done
 

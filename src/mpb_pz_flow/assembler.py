@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import io
+from . import composition, io
 from .models import MatrixEntry, NormEntry
 from .pipeline import audit_binding_issues
 from .standards import SECTION_REQUIREMENTS
@@ -22,6 +22,8 @@ def assemble_draft(project_dir: Path, section: str | None = None) -> str:
     norms = {norm.norm_id: norm for norm in io.read_norms(project_dir, paths.section)}
     matrix = io.read_matrix(project_dir, paths.section)
     applicable = [row for row in matrix if row.status == "применимо"]
+    # Паттерн СП: сначала общие требования, затем ФКП-частные, затем спецблоки.
+    applicable = composition.sort_matrix_rows_for_assembly(applicable, norms)
 
     lines: list[str] = [f"# {paths.section}", ""]
     if structure_for_fkp(state.fkp) and _is_full_volume_request(paths.section):
