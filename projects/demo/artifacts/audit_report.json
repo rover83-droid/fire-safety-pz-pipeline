@@ -1,26 +1,28 @@
 {
+  "engine": "mpb-pz-flow.audit_project",
+  "section": "Наружное ВПС и проезды",
+  "section_slug": "наружное-впс-и-проезды",
   "passed": true,
-  "level_1": [
-    {
-      "code": "norms.source_file_missing",
-      "message": "Norm sp8-5-2-tab2 source file is not found: standards/demo/SP_8_13130_2020_excerpt.md.",
-      "artifact": "norms.jsonl",
-      "severity": "warning"
-    },
-    {
-      "code": "norms.source_file_missing",
-      "message": "Norm sp8-6-3 source file is not found: standards/demo/SP_8_13130_2020_excerpt.md.",
-      "artifact": "norms.jsonl",
-      "severity": "warning"
-    },
-    {
-      "code": "norms.source_file_missing",
-      "message": "Norm sp4-driveways source file is not found: standards/demo/SP_4_13130_2013_excerpt.md.",
-      "artifact": "norms.jsonl",
-      "severity": "warning"
-    }
-  ],
+  "level_1": [],
   "level_2": [],
   "verdict": "КОНВЕЙЕР ЗАВЕРШЁН",
-  "generated_at": "2026-06-10T19:21:55.283851+00:00"
+  "routing_summary": {
+    "agent_1": 0,
+    "agent_2": 0,
+    "orchestrator": 0
+  },
+  "artifact_hashes": {
+    "passport.json": "4c333cc064177c07f15215265ead706468323e36f313dad0f6f41172b4bf16fa",
+    "decisions.json": "5d3a0c04cb95032292fa6445dc5fc090b06957426957b20b7e6dd855fd5e40b5",
+    "calculations.json": "e8ad90c8b9b9a71709ffb1fa6986e1e8128033bf6369f64475ecd1d00354c42c",
+    "norms.jsonl": "ab8bcbfcbf54499ff79bd0d62f888aefbaccc0146d33a385f4cc21d7523ac464",
+    "applicability_matrix.jsonl": "d4099b564c8ce141c015a75cec744ed3d04ab5e11e2f464153efdb2341c62904",
+    "draft.md": "45e66bda1335bbf8f96c49e13010256461d0a3df9f6f5efcc27310f2575ee593",
+    "agent_findings.json": null,
+    "standards/manifest.json": "831d3acc182839004348efd5fdee2cb07d31ad6b7a59a4c8401890f1f1711af3"
+  },
+  "generated_at": "2026-11-16T13:22:43.559108+00:00",
+  "iteration": 0,
+  "max_iterations": 3,
+  "escalation_required": false
 }

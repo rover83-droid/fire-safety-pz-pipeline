@@ -51,6 +51,10 @@ Fkp = Literal[
 ]
 NormStatus = Literal["применимо", "неприменимо", "требует инженерной проверки"]
 AuditLevel = Literal["level_1", "level_2"]
+CompositionLayer = Literal["general", "fkp_specific", "special"]
+COMPOSITION_LAYERS: tuple[CompositionLayer, ...] = ("general", "fkp_specific", "special")
+DEFAULT_COMPOSITION_LAYER: CompositionLayer = "general"
+DEFAULT_FKP_SCOPE: tuple[str, ...] = ("*",)
 
 
 @dataclass(slots=True)
@@ -145,11 +149,26 @@ class NormEntry:
     # Машинно-вычислимые условия применимости:
     # [{"param": "height_m", "op": ">=", "value": 10, "unit": "м"}, ...]
     triggers: list[dict[str, Any]] | None = None
+    # Паттерны СП: общее → ФКП-частное → спецблок; область ФКП; глава источника.
+    # Тип str: невалидное значение сохраняется и ловится validate_norms.
+    composition_layer: str = DEFAULT_COMPOSITION_LAYER
+    fkp_scope: list[str] = field(default_factory=lambda: list(DEFAULT_FKP_SCOPE))
+    source_section: str = ""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "NormEntry":
         # Отсутствующие поля не валят чтение: пустые значения поймает validate_norms
         # как norms.required — ошибка валидации вместо краха на легаси-данных.
+        # Старые нормы без composition_* получают general + ["*"].
+        if "composition_layer" not in data or data.get("composition_layer") in (None, ""):
+            layer: str = DEFAULT_COMPOSITION_LAYER
+        else:
+            layer = str(data.get("composition_layer")).strip()
+        scope_raw = data.get("fkp_scope")
+        if isinstance(scope_raw, list) and scope_raw:
+            scope = [str(item).strip() for item in scope_raw if str(item).strip()]
+        else:
+            scope = list(DEFAULT_FKP_SCOPE)
         return cls(
             norm_id=str(data.get("norm_id", "")),
             document=str(data.get("document", "")),
@@ -161,6 +180,9 @@ class NormEntry:
             source_file=str(data.get("source_file", "")),
             collision_with=data.get("collision_with"),
             triggers=data.get("triggers"),
+            composition_layer=layer,
+            fkp_scope=scope or list(DEFAULT_FKP_SCOPE),
+            source_section=str(data.get("source_section") or ""),
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -174,7 +196,11 @@ class NormEntry:
             "trigger_parameter": self.trigger_parameter,
             "source_file": self.source_file,
             "collision_with": self.collision_with,
+            "composition_layer": self.composition_layer,
+            "fkp_scope": list(self.fkp_scope),
         }
+        if self.source_section:
+            result["source_section"] = self.source_section
         if self.triggers is not None:
             result["triggers"] = self.triggers
         return result

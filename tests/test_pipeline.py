@@ -301,9 +301,11 @@ class Phase0IntegrityTests(unittest.TestCase):
         self.assertEqual(Stage.AUDIT_PASSED, refresh_stage(project).stage)
 
         draft_path = io.artifact_paths(project).draft
+        # Дописываем абзац того же (последнего) слоя special, чтобы не ломать
+        # порядок композиции general → fkp_specific → special.
         draft_path.write_text(
             draft_path.read_text(encoding="utf-8")
-            + "\n[Тип А] В соответствии с СП 8.13130.2020, п. 5.2, табл. 2 принято дополнительное проектное решение, добавленное после аудита. {norm:sp8-5-2-tab2}\n",
+            + "\n[Тип А] В соответствии с СП 4.13130.2013, п. 8.1 принято дополнительное проектное решение, добавленное после аудита. {norm:sp4-driveways}\n",
             encoding="utf-8",
         )
 

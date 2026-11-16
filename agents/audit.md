@@ -49,7 +49,9 @@ Check:
 - every paragraph's `{norm:<norm_id>}` exists in `norms.jsonl`;
 - every referenced norm is `применимо` in the matrix;
 - numeric values match passport parameters;
-- no non-applicable norm appears in the draft.
+- no non-applicable norm appears in the draft;
+- no `применимо` matrix row for a norm whose `fkp_scope` excludes the project FKP (`matrix.scope_mismatch` / `norms.scope_mismatch`);
+- composition metadata on norms from СП 1/2/4 is present and valid (`composition_layer`, `fkp_scope`).
 
 ## Level 2: Production Quality
 
@@ -59,7 +61,8 @@ Check:
 - required tables for the selected section are present;
 - F5.1 full-volume drafts follow `docs/etalon-mpb-f5-1-structure.md`;
 - no declarative paragraph lacks normative basis;
-- system algorithms include operative parameters when relevant.
+- system algorithms include operative parameters when relevant;
+- within a section, paragraph layer order is `general` → `fkp_specific` → `special` (`draft.composition_order`).
 
 ## Done
 

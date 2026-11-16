@@ -4,7 +4,7 @@ import json
 import re
 from pathlib import Path
 
-from . import corpus, io, triggers
+from . import composition, corpus, io, triggers
 from .models import MatrixEntry, NormEntry, ValidationIssue
 from .standards import required_fields_for_fkp
 from .style import (
@@ -49,6 +49,7 @@ def validate_passport(project_dir: Path) -> list[ValidationIssue]:
                 "passport.json",
             )
         )
+    issues.extend(composition.applicability_boundary_issues(data, state.fkp))
     return issues
 
 
@@ -109,6 +110,10 @@ def _validate_norm(norm: NormEntry, seen: set[str], project_dir: Path, label: st
         issues.append(ValidationIssue("norms.quote_too_short", f"Norm {norm.norm_id} quote is too short.", label))
     if norm.edition_year < 1900:
         issues.append(ValidationIssue("norms.edition_year", f"Norm {norm.norm_id} has invalid edition year.", label))
+    layer_issue = composition.validate_composition_layer_value(norm)
+    if layer_issue is not None:
+        layer_issue.artifact = label
+        issues.append(layer_issue)
     source = Path(norm.source_file)
     project_source = project_dir / norm.source_file
     if norm.source_file.strip() and not source.exists() and not project_source.exists():
@@ -240,6 +245,34 @@ def validate_matrix(project_dir: Path, section: str | None = None) -> list[Valid
         issues.append(ValidationIssue("matrix.coverage", f"Norm {norm_id} is not covered by matrix.", label))
     for row in rows:
         issues.extend(_validate_matrix_row(row, norms, label))
+    return issues
+
+
+def validate_composition(
+    project_dir: Path,
+    section: str | None = None,
+    *,
+    level: str = "level_1",
+) -> list[ValidationIssue]:
+    """Проверки композиции: scope в матрице (level_1) и порядок слоёв в черновике (level_2)."""
+    paths = io.artifact_paths(project_dir, section)
+    state = io.read_state(project_dir)
+    norms = {norm.norm_id: norm for norm in io.read_norms(project_dir, section)}
+    issues: list[ValidationIssue] = []
+
+    if level == "level_1":
+        if paths.matrix.exists():
+            rows = io.read_matrix(project_dir, section)
+            issues.extend(
+                composition.validate_matrix_scope(rows, norms, state.fkp, paths.rel(paths.matrix))
+            )
+        return issues
+
+    if paths.draft.exists():
+        text = paths.draft.read_text(encoding="utf-8")
+        issues.extend(
+            composition.validate_draft_composition_order(text, norms, paths.rel(paths.draft))
+        )
     return issues
 
 
@@ -476,6 +509,7 @@ def validate_all(project_dir: Path, section: str | None = None) -> list[Validati
         issues.extend(validate_editions(project_dir, section))
         issues.extend(validate_matrix(project_dir, section))
         issues.extend(validate_triggers(project_dir, section))
+        issues.extend(validate_composition(project_dir, section, level="level_1"))
     if not _has_blocking_errors(issues, io.MATRIX_FILE):
         issues.extend(validate_draft(project_dir, section))
         issues.extend(validate_numbers(project_dir, section))
@@ -484,6 +518,7 @@ def validate_all(project_dir: Path, section: str | None = None) -> list[Validati
         issues.extend(validate_section_content(project_dir, section))
         issues.extend(validate_lacunae(project_dir, section))
         issues.extend(validate_volume_structure(project_dir, section))
+        issues.extend(validate_composition(project_dir, section, level="level_2"))
     return issues
 
 
